@@ -4,6 +4,7 @@ namespace LegacyApp
 {
     public class UserService
     {
+        
         public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId)
         {
             if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
