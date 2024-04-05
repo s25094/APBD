@@ -6,13 +6,13 @@ namespace LegacyAppTest;
 
 public class UserServiceTest
 {
-    UserService userService = new UserService();
+    
     private string firstName = "Anna";
     private string lastName = "Kowalski";
     private string email = "anna.maria@o2.pl";
     private DateTime dateOfBirth = DateTime.Parse("1982-03-21");
     private int clientId = 1;
-    
+    private UserService userService = new UserService();
     
     [Fact]
     public void AddUser_Return_False_If_FirstName_Or_LastName_is_NullOrEmpty()
@@ -51,7 +51,6 @@ public class UserServiceTest
     [Fact]   
     public void AddUser_Return_False_If_NowMonth_Is_Less_Than_BirtMonth_OR_NowMonth_Is_Equal_BorthMonth_And_NowDay_Is_Less_Than_BirthDay()
     {
-        ITestOutputHelper output = new TestOutputHelper();
         int adult_age = 21;
         DateTime test_birthday = DateTime.Now.AddYears(-adult_age);
         
