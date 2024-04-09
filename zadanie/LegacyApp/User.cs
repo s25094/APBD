@@ -18,7 +18,7 @@ namespace LegacyApp
         public User(string firstName, string lastName, string emailAddress, DateTime dateOfBirth, Client client)
         {
             isUserCreated = false;
-            bool checkIfFirstNameorLastNameNUllorEmpty = !new []{firstName, lastName}.Any(s => string.IsNullOrEmpty(s));
+            bool checkIfFirstNameorLastNameNUllorEmpty = new []{firstName, lastName}.All(s => !string.IsNullOrEmpty(s));
             bool isEmailAddresVerified = new[] {"@", ".",}.All(c => emailAddress.Contains(c));
             bool isAgeVerified = UserAge(dateOfBirth) >= 21;
 
