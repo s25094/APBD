@@ -19,7 +19,7 @@ public class AnimalsRepository : IAnimalsRepository
         
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "SELECT IdStudent, FirstName, LastName, Email, Address, IndexNumber FROM Student ORDER BY LastName, FirstName";
+        cmd.CommandText = "SELECT IdAnimals, Name, Description, Category, Area FROM Animal ORDER BY Name";
         
         var dr = cmd.ExecuteReader();
         var animals = new List<Animal>();
@@ -27,11 +27,11 @@ public class AnimalsRepository : IAnimalsRepository
         {
             var grade = new Animal
             {
-                IdAnimal = (int)dr["IdStudent"],
-                Name = dr["FirstName"].ToString(),
-                Description = dr["LastName"].ToString(),
-                Category = dr["Email"].ToString(),
-                Area = dr["Address"].ToString(),
+                IdAnimal = (int)dr["IdAnimals"],
+                Name = dr["Name"].ToString(),
+                Description = dr["Description"].ToString(),
+                Category = dr["Category"].ToString(),
+                Area = dr["Area"].ToString(),
             };
             animals.Add(grade);
         }
@@ -46,8 +46,8 @@ public class AnimalsRepository : IAnimalsRepository
         
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "SELECT IdStudent, FirstName, LastName, Email, Address, IndexNumber FROM Student WHERE IdStudent = @IdStudent";
-        cmd.Parameters.AddWithValue("@IdStudent", idAnimal);
+        cmd.CommandText = "SELECT IdAnimals, Name, Description, Category, Area FROM Animal WHERE IdAnimals = @IdAnimals";
+        cmd.Parameters.AddWithValue("@IdAnimals", idAnimal);
         
         var dr = cmd.ExecuteReader();
         
@@ -55,11 +55,11 @@ public class AnimalsRepository : IAnimalsRepository
         
         var animal = new Animal
         {
-            IdAnimal = (int)dr["IdStudent"],
-            Name = dr["FirstName"].ToString(),
-            Description = dr["LastName"].ToString(),
-            Category = dr["Email"].ToString(),
-            Area = dr["Address"].ToString()
+            IdAnimal = (int)dr["IdAnimals"],
+            Name = dr["Name"].ToString(),
+            Description = dr["Description"].ToString(),
+            Category = dr["Category"].ToString(),
+            Area = dr["Area"].ToString()
         };
         
         return animal;
@@ -72,12 +72,11 @@ public class AnimalsRepository : IAnimalsRepository
         
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "INSERT INTO Student(FirstName, LastName, Email, Address, IndexNumber) VALUES(@FirstName, @LastName, @Email, @Address, @IndexNumber)";
-        cmd.Parameters.AddWithValue("@IdStudent", animal.IdAnimal);
-        cmd.Parameters.AddWithValue("@FirstName", animal.Name);
-        cmd.Parameters.AddWithValue("@LastName", animal.Description);
-        cmd.Parameters.AddWithValue("@Email", animal.Category);
-        cmd.Parameters.AddWithValue("@Address", animal.Area);
+        cmd.CommandText = "INSERT INTO Animal(Name, Description, Category, Area) VALUES(@Name, @Description, @Category, @Area)";
+        cmd.Parameters.AddWithValue("@Name", animal.Name);
+        cmd.Parameters.AddWithValue("@Description", animal.Description);
+        cmd.Parameters.AddWithValue("@Category", animal.Category);
+        cmd.Parameters.AddWithValue("@Area", animal.Area);
         
         var affectedCount = cmd.ExecuteNonQuery();
         return affectedCount;
@@ -91,8 +90,8 @@ public class AnimalsRepository : IAnimalsRepository
         
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "DELETE FROM Student WHERE IdStudent = @IdStudent";
-        cmd.Parameters.AddWithValue("@IdStudent", id);
+        cmd.CommandText = "DELETE FROM Animal WHERE IdAnimals = @IdAnimals";
+        cmd.Parameters.AddWithValue("@IdAnimals", id);
         
         var affectedCount = cmd.ExecuteNonQuery();
         return affectedCount;
@@ -105,12 +104,12 @@ public class AnimalsRepository : IAnimalsRepository
         
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "UPDATE Student SET FirstName=@FirstName, LastName=@LastName, Email=@Email, Address=@Address, IndexNumber=@IndexNumber WHERE IdStudent = @IdStudent";
-        cmd.Parameters.AddWithValue("@IdStudent", animal.IdAnimal);
-        cmd.Parameters.AddWithValue("@FirstName", animal.Name);
-        cmd.Parameters.AddWithValue("@LastName", animal.Description);
-        cmd.Parameters.AddWithValue("@Email", animal.Category);
-        cmd.Parameters.AddWithValue("@Address", animal.Area);
+        cmd.CommandText = "UPDATE Animal SET Name=@Name, Description=@Description, Category=@Category, Area=@Area WHERE IdAnimals = @IdAnimals";
+        cmd.Parameters.AddWithValue("@IdAnimals", animal.IdAnimal);
+        cmd.Parameters.AddWithValue("@Name", animal.Name);
+        cmd.Parameters.AddWithValue("@Description", animal.Description);
+        cmd.Parameters.AddWithValue("@Category", animal.Category);
+        cmd.Parameters.AddWithValue("@Area", animal.Area);
         
         var affectedCount = cmd.ExecuteNonQuery();
         return affectedCount;

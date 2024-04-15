@@ -15,22 +15,14 @@ public class AnimalsController : ControllerBase
         _animalsService = animalsService;
     }
     
-    /// <summary>
-    /// Endpoints used to return list of students.
-    /// </summary>
-    /// <returns>List of students</returns>
+
     [HttpGet]
     public IActionResult GetAnimals()
     {
         var animals = _animalsService.GetAnimals();
         return Ok(animals);
     }
-    
-    /// <summary>
-    /// Endpoint used to return a single student.
-    /// </summary>
-    /// <param name="id">Id of a student</param>
-    /// <returns>Student</returns>
+
     [HttpGet("{id:int}")]
     public IActionResult GetAnimal(int id)
     {
@@ -44,11 +36,6 @@ public class AnimalsController : ControllerBase
         return Ok(animal);
     }
     
-    /// <summary>
-    /// Endpoint used to create a student.
-    /// </summary>
-    /// <param name="student">New student data</param>
-    /// <returns>201 Created</returns>
     [HttpPost]
     public IActionResult CreateAnimal(Animal animal)
     {
@@ -56,12 +43,6 @@ public class AnimalsController : ControllerBase
         return StatusCode(StatusCodes.Status201Created);
     }
     
-    /// <summary>
-    /// Endpoint used to update a student.
-    /// </summary>
-    /// <param name="id">Id of a student</param>
-    /// <param name="student">204 No Content</param>
-    /// <returns></returns>
     [HttpPut("{id:int}")]
     public IActionResult UpdateAnimal(int id, Animal animal)
     {
@@ -69,11 +50,6 @@ public class AnimalsController : ControllerBase
         return NoContent();
     }
     
-    /// <summary>
-    /// Endpoint used to delete a student.
-    /// </summary>
-    /// <param name="id">Id of a student</param>
-    /// <returns>204 No Content</returns>
     [HttpDelete("{id:int}")]
     public IActionResult DeleteAnimal(int id)
     {
