@@ -17,12 +17,7 @@ public class AnimalsRepository : IAnimalsRepository
         using var con = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]);
         con.Open();
 
-        //string sortedBY = "name";
-        if (parameter is not null)
-        {
-           // sortedBY = parameter;
-        }
-
+        
         string sortedBY = parameter is null ? "name" : parameter;
 
         using var cmd = new SqlCommand();
