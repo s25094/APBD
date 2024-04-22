@@ -3,7 +3,7 @@ namespace Animals.Services;
 
 public interface IAnimalsService
 {
-    IEnumerable<Animal> GetAnimals();
+    IEnumerable<Animal> GetAnimals(string? parameter);
     int CreateAnimal(Animal animal);
     Animal? GetAnimal(int idAnimal);
     int UpdateAnimal(Animal animal);

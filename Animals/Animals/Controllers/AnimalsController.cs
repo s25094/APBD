@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Animals.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/animals")]
 [ApiController]
 public class AnimalsController : ControllerBase
 {
@@ -17,9 +17,9 @@ public class AnimalsController : ControllerBase
     
 
     [HttpGet]
-    public IActionResult GetAnimals()
+    public IActionResult GetAnimals(string? parameter)
     {
-        var animals = _animalsService.GetAnimals();
+        var animals = _animalsService.GetAnimals(parameter);
         return Ok(animals);
     }
 

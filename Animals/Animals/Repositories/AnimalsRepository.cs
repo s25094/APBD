@@ -12,14 +12,22 @@ public class AnimalsRepository : IAnimalsRepository
         _configuration = configuration;
     }
     
-    public IEnumerable<Animal> GetAnimals()
+    public IEnumerable<Animal> GetAnimals(string? parameter)
     {
         using var con = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]);
         con.Open();
-        
+
+        //string sortedBY = "name";
+        if (parameter is not null)
+        {
+           // sortedBY = parameter;
+        }
+
+        string sortedBY = parameter is null ? "name" : parameter;
+
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "SELECT IdAnimals, Name, Description, Category, Area FROM Animal ORDER BY Name";
+        cmd.CommandText = "SELECT IdAnimals, Name, Description, Category, Area FROM Animal ORDER BY " + sortedBY;
         
         var dr = cmd.ExecuteReader();
         var animals = new List<Animal>();
@@ -72,9 +80,11 @@ public class AnimalsRepository : IAnimalsRepository
         
         using var cmd = new SqlCommand();
         cmd.Connection = con;
-        cmd.CommandText = "INSERT INTO Animal(Name, Description, Category, Area) VALUES(@Name, @Description, @Category, @Area)";
+        cmd.CommandText =
+            "INSERT INTO Animal(idAnimals, Name, Description, Category, Area) VALUES(@IdAnimals, @Name, @Description, @Category, @Area)";
+        cmd.Parameters.AddWithValue("@IdAnimals", animal.IdAnimal);
         cmd.Parameters.AddWithValue("@Name", animal.Name);
-        cmd.Parameters.AddWithValue("@Description", animal.Description);
+        cmd.Parameters.AddWithValue("@Description", animal.Description is null ? DBNull.Value : animal.Description);
         cmd.Parameters.AddWithValue("@Category", animal.Category);
         cmd.Parameters.AddWithValue("@Area", animal.Area);
         
