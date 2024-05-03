@@ -14,4 +14,8 @@ public class WarehouseService : IWarehouseService
     public Task<int> CreateOrder(Order order){
        return _warehouseRepository.CreateOrder(order);
     }
+    
+    public Task<int> CreateOrderByProcedure(Order order){
+        return _warehouseRepository.CreateOrderByProcedure(order);
+    }
 }

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Warehouse.Model;
@@ -129,5 +130,21 @@ public class WarehouseRepository : IWarehouseRepository
             return modified;
         }
         return 0;
+    }
+
+    public async Task<int> CreateOrderByProcedure(Order order)
+    {
+        using var con = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]);
+        using var cmd = new SqlCommand("AddProductToWarehouse", con)
+        {
+            CommandType = CommandType.StoredProcedure
+        };
+        await con.OpenAsync();
+        cmd.Parameters.AddWithValue("@IdProduct", order.IdProduct);
+        cmd.Parameters.AddWithValue("@IdWarehouse", order.IdWarehouse);
+        cmd.Parameters.AddWithValue("@Amount", order.Amount);
+        cmd.Parameters.AddWithValue("@CreatedAt", order.CreatedAt);
+        
+        return await cmd.ExecuteNonQueryAsync();
     }
 }

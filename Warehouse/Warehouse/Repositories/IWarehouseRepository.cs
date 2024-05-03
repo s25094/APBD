@@ -4,6 +4,7 @@ namespace Warehouse.Repositories;
 public interface IWarehouseRepository
 {
     Task<int> CreateOrder(Order order);
+    Task<int> CreateOrderByProcedure(Order order);
     Task<double> CheckIfProductExists(Order order);
     Task<bool> CheckIfWarehouseExists(int WarehouseID);
     Task<int> CheckIfOrderExists(Order order);
