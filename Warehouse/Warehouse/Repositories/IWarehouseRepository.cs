@@ -3,12 +3,12 @@ namespace Warehouse.Repositories;
 
 public interface IWarehouseRepository
 {
-    int CreateOrder(Order order);
-    double CheckIfProductExists(Order order);
-    bool CheckIfWarehouseExists(int WarehouseID);
-    int CheckIfOrderExists(Order order);
+    Task<int> CreateOrder(Order order);
+    Task<double> CheckIfProductExists(Order order);
+    Task<bool> CheckIfWarehouseExists(int WarehouseID);
+    Task<int> CheckIfOrderExists(Order order);
     
-    int IsOrderFinalized(int OrderId);
-    void UpdateOrder(int OrderId);
+    Task<int> IsOrderFinalized(int OrderId);
+    Task UpdateOrder(int OrderId);
 
 }

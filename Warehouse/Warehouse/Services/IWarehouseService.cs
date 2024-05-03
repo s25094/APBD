@@ -2,5 +2,5 @@ using Warehouse.Model;
 namespace Warehouse.Services;
 
 public interface IWarehouseService{
-    int CreateOrder(Order order);
+    Task<int> CreateOrder(Order order);
 }
