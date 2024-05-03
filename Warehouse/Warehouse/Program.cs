@@ -1,3 +1,6 @@
+using Warehouse.Repositories;
+using Warehouse.Services;
+
 public class Program
 {
     public static void Main(string[] args)
@@ -8,8 +11,8 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllers();
-       // builder.Services.AddScoped<IAnimalsRepository, AnimalsRepository>();
-       // builder.Services.AddScoped<IAnimalsService, AnimalsService>();
+        builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+        builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 
         var app = builder.Build();
 
