@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Perscription.Model;
 
-public class Patient
+public class NewPerscription
 {
-    [Key]
+
     public int IdPatient { get; set; }
 
     [Required]
@@ -19,8 +18,17 @@ public class Patient
 
     public DateTime? BirthDate { get; set; }
     
-    public virtual ICollection<PerscriptionC> PerscriptionCs { get; set; }
+    public ICollection<NewDose> NewDoses { get; set; }
     
+    
+    [Required]
+    public DateTime? Date { get; set; }
+    
+    [Required]
+    public DateTime? DueDate { get; set; }
+    
+    public int IdDoctor { get; set; }
+
     
     
 }

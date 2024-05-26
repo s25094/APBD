@@ -4,13 +4,15 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        
+        //Registering services
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllers();
-        
+   
         var app = builder.Build();
 
+        //Configuring the HTTP request pipeline
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();

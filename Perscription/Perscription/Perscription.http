@@ -1,4 +1,4 @@
-@Perscription_HostAddress = http://localhost:5072
+@Perscription_HostAddress = http://localhost:5019
 
 GET {{Perscription_HostAddress}}/weatherforecast/
 Accept: application/json
