@@ -4,7 +4,33 @@ namespace Perscription.Model;
 
 public class NewPerscription
 {
+    
+    private int max_doses = 10;
+    
 
+    public void checkDoses()
+    {
+        if (this.NewDoses.Count > 10)
+        {
+            throw new Exception($"You can add only {max_doses} at one perscripiton.");
+        }
+    }
+
+    public void checkDates()
+    {
+        if (this.DueDate < this.Date)
+        {
+            throw new Exception($"Due date has to be greater or equal than Date parameter.");
+        }
+    }
+
+    public void validateData()
+    {
+        checkDates();
+        checkDoses();
+    }
+    
+    
     public int IdPatient { get; set; }
 
     [Required]

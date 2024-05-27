@@ -1,5 +1,6 @@
 using System.Net;
 using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
@@ -18,6 +19,7 @@ public class PharmacyController : ControllerBase
     {
     }
     
+    
     [HttpPost("perscription")]
     public async Task<IActionResult> AddNewPerscription(NewPerscription newPerscription)
     {
@@ -33,48 +35,48 @@ public class PharmacyController : ControllerBase
 
         foreach(var meds in newPerscription.NewDoses){
             if (!_dbContext.Medicaments.Any(m => m.IdMedicament == meds.IdMedicament))
-            {
+           {
                 return BadRequest($"Medicament with id: {meds.IdMedicament} - not found in database!");
             }
         }
 
-        
+        int patient_id = newPerscription.IdPatient;
         if (!_dbContext.Patients.Any(p => p.IdPatient == newPerscription.IdPatient))
             {
                 var patient = new Patient
                 {
-                    IdPatient = newPerscription.IdPatient,
+                    //IdPatient = newPerscription.IdPatient,
                     BirthDate = newPerscription.BirthDate,
                     FirstName = newPerscription.FirstName,
                     LastName = newPerscription.LastName
                 };
                 await _dbContext.Patients.AddAsync(patient);
-                
+                await _dbContext.SaveChangesAsync();
+                patient_id = patient.IdPatient;
             }
+        
+              var perscription = new PerscriptionC
+              {
+                  Date = newPerscription.Date,
+                  DueDate = newPerscription.DueDate,
+                  Patient = await _dbContext.Patients.Where(p => p.IdPatient == patient_id).FirstAsync(),
+                  Doctor = await _dbContext.Doctors.Where(p => p.IdDoctor == newPerscription.IdDoctor).FirstAsync()
+              };
+              await _dbContext.PerscriptionCs.AddAsync(perscription);
+              await _dbContext.SaveChangesAsync();
+              foreach (var med in newPerscription.NewDoses)
+              {
+                  var medicament_perscription = new Perscription_Medicament
+                  {
+                      Dose = med.Dose,
+                      Details = med.Details,
+                      IdMedicament = med.IdMedicament,
+                      IdPerscription = perscription.IdPerscription
+                  };
 
-        var perscription = new PerscriptionC
-        {
-            Date = newPerscription.Date,
-            DueDate = newPerscription.DueDate,
-            Patient = await _dbContext.Patients.Where(p => p.IdPatient == newPerscription.IdPatient).FirstAsync(),
-            Doctor = await _dbContext.Doctors.Where(p => p.IdDoctor == newPerscription.IdDoctor).FirstAsync()
-        };
-        await _dbContext.PerscriptionCs.AddAsync(perscription);
-        await _dbContext.SaveChangesAsync();
-        foreach (var med in newPerscription.NewDoses)
-        {
-            var medicament_perscription = new Perscription_Medicament
-            {
-                Dose = med.Dose,
-                Details = med.Details,
-                IdMedicament = med.IdMedicament,
-                IdPerscription = perscription.IdPerscription
-            };
-            
-            await _dbContext.Perscription_Medicaments.AddAsync(medicament_perscription);
-        }
-        
-        
+                  await _dbContext.Perscription_Medicaments.AddAsync(medicament_perscription);
+              }
+              
         await _dbContext.SaveChangesAsync();
         return Ok();
             
@@ -83,35 +85,35 @@ public class PharmacyController : ControllerBase
     [HttpGet("patients/{idPatient:int}")]
     public async Task<IActionResult> GetPatientDetails(int idPatient)
     {
-        var patient = await _dbContext.Patients.Where(p => p.IdPatient == idPatient).Select(c => new
+        var patient = await _dbContext.Patients
+            .Include(persc => persc.PerscriptionCs)
+            .Select(patient => new
         {
-            idPatient = c.IdPatient, 
-            FirstName = c.FirstName, 
-            LastName = c.LastName, 
-            BirthDate = c.BirthDate, 
-            Perscriptions = c.PerscriptionCs.Where(d => c.IdPatient == d.Patient.IdPatient).Select(d => new
+            IdPatient = patient.IdPatient,
+            PatientFirstName = patient.FirstName,
+            PatientLastName = patient.LastName,
+            BirthDay = patient.BirthDate,
+            Perscriptions = patient.PerscriptionCs.Select(p => new
             {
-                Date = d.Date,
-                DueDate = d.DueDate,
-                IdPerscription = d.IdPerscription,
+                PerscriptionID = p.IdPerscription,
+                Date = p.Date,
+                DueDate = p.DueDate,
+                Medicaments = p.Perscription_Medicament.Select(m => new
+                {
+                    IdMedicament = m.IdMedicament,
+                    MedicamentName = _dbContext.Medicaments.Select(name => name.Name).FirstOrDefault(),
+                    Dose = m.Dose, 
+                    Details = m.Details
+                    
+                }).ToList(), 
                 Doctor = new
                 {
-                    IdDoctor = d.Doctor.IdDoctor, 
-                    FirstName = d.Doctor.FirstName
-                }, 
-                Medicaments = d.Perscription_Medicament.Where(pm => pm.IdPerscription == d.IdPerscription)
-                    .Select(no => new
-                    {
-                        IdMedicament = no.IdMedicament,
-                        Name = _dbContext.Medicaments.Where(md => md.IdMedicament == no.IdMedicament).Select(
-                            newmed => newmed.Name
-                            ).First(),
-                        Dose = no.Dose,
-                        Details = no.Details
-                        
-                    })
-            })
-        }).FirstAsync();
+                    IdDoctor = p.Doctor.IdDoctor,
+                    DoctorName = p.Doctor.FirstName + " " + p.Doctor.LastName
+                }
+            }).ToList()
+        }).FirstOrDefaultAsync(p => p.IdPatient == idPatient);
+        
         return Ok(patient);
     }
 

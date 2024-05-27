@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 public class Program
 {
     
@@ -9,6 +11,8 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(x =>
+            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
    
         var app = builder.Build();
 

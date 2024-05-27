@@ -25,5 +25,6 @@ public class PharmacyDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
         builder.UseSqlServer("Server=localhost;Database=Pharmacy;User Id=sa;Password=Abc?12345;TrustServerCertificate=True");
+      
     }
 }
