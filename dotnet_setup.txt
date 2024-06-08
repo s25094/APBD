@@ -1,0 +1,85 @@
+Setup
+1. ASP net core 
+2. API
+3. Microsoft.EntityFrameworkCore 
+4. Microsoft.EntityFrameworkCore.SqlServer 
+5. Microsoft.EntityFrameworkCore.Tools
+
+6. dotnet new tool-manifest
+7. dotnet tool install dotnet-ef --version 8.0.0
+8. <InvariantGlobalization>false</InvariantGlobalization>
+
+9. Create Model and Context Directory
+10. Create models with constraints:
+[Key] - PK
+[Required]
+[MaxLength(100)]
+[StringLength(100, MinimumLength = 10)]
+[MinLength(10)]
+[Range(1, 100)]
+[RegularExpression(@"^[A-Z]+[a-zA-Z]*$")]
+[ConcurrencyCheck]
+[Timestamp]
+[ForeignKey("DepartmentId")]
+
+InverseProperty("User")]
+[ForeignKey("UserId")]
+[InverseProperty("Orders")]
+
+
+dotnet ef migrations add InitialMigration
+dotnet ef database update
+
+program.cs
+public class Program
+{
+    
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        
+        //Registering services
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        builder.Services.AddControllers();
+   
+        var app = builder.Build();
+
+        //Configuring the HTTP request pipeline
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+        app.MapControllers();
+
+        app.Run();
+    }
+}
+
+using Microsoft.EntityFrameworkCore;
+
+namespace Perscription.Context;
+
+public class PharmacyDbContext : DbContext
+{
+    public PharmacyDbContext()
+    {
+        
+    }
+
+    public PharmacyDbContext(DbContextOptions options) : base(options)
+    {
+        
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder builder)
+    {
+        builder.UseSqlServer("Server=localhost;Database=Trips;User Id=sa;Password=Abc?12345");
+    }
+}
+
+
+
