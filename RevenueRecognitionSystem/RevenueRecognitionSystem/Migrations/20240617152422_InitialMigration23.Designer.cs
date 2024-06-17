@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RevenueRecognitionSystem.Context;
 
@@ -11,9 +12,11 @@ using RevenueRecognitionSystem.Context;
 namespace RevenueRecognitionSystem.Migrations
 {
     [DbContext(typeof(RevenueRecognitionContext))]
-    partial class RevenueRecognitionContextModelSnapshot : ModelSnapshot
+    [Migration("20240617152422_InitialMigration23")]
+    partial class InitialMigration23
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace RevenueRecognitionSystem.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DiscountUpfrontContract", b =>
+                {
+                    b.Property<int>("DiscountsDiscountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UpfrontContractsContractId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DiscountsDiscountId", "UpfrontContractsContractId");
+
+                    b.HasIndex("UpfrontContractsContractId");
+
+                    b.ToTable("DiscountUpfrontContract");
+                });
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.Client", b =>
                 {
@@ -91,7 +109,7 @@ namespace RevenueRecognitionSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
-                    b.Property<int>("OrderId")
+                    b.Property<int>("ContractId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("paymentAmount")
@@ -99,7 +117,7 @@ namespace RevenueRecognitionSystem.Migrations
 
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("ContractId");
 
                     b.ToTable("Payments");
                 });
@@ -141,21 +159,20 @@ namespace RevenueRecognitionSystem.Migrations
                     b.ToTable("Softwares");
                 });
 
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.SoftwareOrder", b =>
+            modelBuilder.Entity("RevenueRecognitionSystem.Model.UpfrontContract", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<int>("ContractId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContractId"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
+                    b.Property<DateTime>("EndDate")
+                        .HasMaxLength(100)
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("money");
@@ -163,25 +180,31 @@ namespace RevenueRecognitionSystem.Migrations
                     b.Property<int>("SoftwareId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("StartDate")
+                        .HasMaxLength(100)
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("Updates")
+                        .HasColumnType("int");
+
                     b.Property<int>("isPaid")
                         .HasColumnType("int");
 
-                    b.HasKey("OrderId");
+                    b.Property<int>("isSigned")
+                        .HasColumnType("int");
+
+                    b.HasKey("ContractId");
 
                     b.HasIndex("ClientId");
 
                     b.HasIndex("SoftwareId");
 
-                    b.ToTable("SoftwareOrders");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("SoftwareOrder");
-
-                    b.UseTphMappingStrategy();
+                    b.ToTable("UpfrontContracts");
                 });
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.Company", b =>
@@ -223,64 +246,33 @@ namespace RevenueRecognitionSystem.Migrations
                     b.HasDiscriminator().HasValue("Individual");
                 });
 
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.Subscription", b =>
+            modelBuilder.Entity("DiscountUpfrontContract", b =>
                 {
-                    b.HasBaseType("RevenueRecognitionSystem.Model.SoftwareOrder");
+                    b.HasOne("RevenueRecognitionSystem.Model.Discount", null)
+                        .WithMany()
+                        .HasForeignKey("DiscountsDiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<int>("QuantityOfRenewalPeriod")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RenewalPeriod")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("SubscriptionName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasDiscriminator().HasValue("Subscription");
-                });
-
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.UpfrontContract", b =>
-                {
-                    b.HasBaseType("RevenueRecognitionSystem.Model.SoftwareOrder");
-
-                    b.Property<int?>("DiscountId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasMaxLength(100)
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasMaxLength(100)
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Updates")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isSigned")
-                        .HasColumnType("int");
-
-                    b.HasIndex("DiscountId");
-
-                    b.HasDiscriminator().HasValue("UpfrontContract");
+                    b.HasOne("RevenueRecognitionSystem.Model.UpfrontContract", null)
+                        .WithMany()
+                        .HasForeignKey("UpfrontContractsContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.Payment", b =>
                 {
-                    b.HasOne("RevenueRecognitionSystem.Model.SoftwareOrder", "SoftwareOrder")
+                    b.HasOne("RevenueRecognitionSystem.Model.UpfrontContract", "UpfrontContract")
                         .WithMany("Payments")
-                        .HasForeignKey("OrderId")
+                        .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SoftwareOrder");
+                    b.Navigation("UpfrontContract");
                 });
 
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.SoftwareOrder", b =>
+            modelBuilder.Entity("RevenueRecognitionSystem.Model.UpfrontContract", b =>
                 {
                     b.HasOne("RevenueRecognitionSystem.Model.Client", "Client")
                         .WithMany()
@@ -300,18 +292,6 @@ namespace RevenueRecognitionSystem.Migrations
                 });
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.UpfrontContract", b =>
-                {
-                    b.HasOne("RevenueRecognitionSystem.Model.Discount", null)
-                        .WithMany("UpfrontContracts")
-                        .HasForeignKey("DiscountId");
-                });
-
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.Discount", b =>
-                {
-                    b.Navigation("UpfrontContracts");
-                });
-
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.SoftwareOrder", b =>
                 {
                     b.Navigation("Payments");
                 });

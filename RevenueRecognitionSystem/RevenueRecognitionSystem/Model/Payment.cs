@@ -11,6 +11,6 @@ public class Payment
     [Column(TypeName="money")]
     [Required] public decimal paymentAmount { get; set; }
     
-    [ForeignKey("ContractId")]
-    public UpfrontContract UpfrontContract { get; set; }
+    [ForeignKey("OrderId")]
+    public SoftwareOrder SoftwareOrder { get; set; }
 }

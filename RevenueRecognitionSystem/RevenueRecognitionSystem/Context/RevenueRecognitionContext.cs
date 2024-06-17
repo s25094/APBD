@@ -21,6 +21,8 @@ public class RevenueRecognitionContext : DbContext
     public DbSet<Software> Softwares { get; set; }
     public DbSet<Discount> Discounts { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<SoftwareOrder> SoftwareOrders { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<UpfrontContract> UpfrontContracts { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {

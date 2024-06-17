@@ -24,10 +24,9 @@ public abstract class Client
 
     public void setClient(string email, string phone, string address)
     {
-        this.Email = email;
-        this.Phone = phone;
-        this.Address = address;
+        Email = email;
+        Phone = phone;
+        Address = address;
     }
     
-    //public virtual ICollection<UpfrontContract> UpfrontContracts { get; set; }
 }

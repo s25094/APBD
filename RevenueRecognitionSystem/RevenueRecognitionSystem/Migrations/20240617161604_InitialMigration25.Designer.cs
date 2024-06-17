@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RevenueRecognitionSystem.Context;
 
@@ -11,9 +12,11 @@ using RevenueRecognitionSystem.Context;
 namespace RevenueRecognitionSystem.Migrations
 {
     [DbContext(typeof(RevenueRecognitionContext))]
-    partial class RevenueRecognitionContextModelSnapshot : ModelSnapshot
+    [Migration("20240617161604_InitialMigration25")]
+    partial class InitialMigration25
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,7 +94,10 @@ namespace RevenueRecognitionSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
-                    b.Property<int>("OrderId")
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SubscriptionOrderId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("paymentAmount")
@@ -99,7 +105,9 @@ namespace RevenueRecognitionSystem.Migrations
 
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("SubscriptionOrderId");
 
                     b.ToTable("Payments");
                 });
@@ -271,13 +279,17 @@ namespace RevenueRecognitionSystem.Migrations
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.Payment", b =>
                 {
-                    b.HasOne("RevenueRecognitionSystem.Model.SoftwareOrder", "SoftwareOrder")
+                    b.HasOne("RevenueRecognitionSystem.Model.UpfrontContract", "UpfrontContract")
                         .WithMany("Payments")
-                        .HasForeignKey("OrderId")
+                        .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SoftwareOrder");
+                    b.HasOne("RevenueRecognitionSystem.Model.Subscription", null)
+                        .WithMany("Payments")
+                        .HasForeignKey("SubscriptionOrderId");
+
+                    b.Navigation("UpfrontContract");
                 });
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.SoftwareOrder", b =>
@@ -311,7 +323,12 @@ namespace RevenueRecognitionSystem.Migrations
                     b.Navigation("UpfrontContracts");
                 });
 
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.SoftwareOrder", b =>
+            modelBuilder.Entity("RevenueRecognitionSystem.Model.Subscription", b =>
+                {
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("RevenueRecognitionSystem.Model.UpfrontContract", b =>
                 {
                     b.Navigation("Payments");
                 });
