@@ -12,5 +12,5 @@ public class Payment
     [Required] public decimal paymentAmount { get; set; }
     
     [ForeignKey("OrderId")]
-    public SoftwareOrder SoftwareOrder { get; set; }
+    public virtual SoftwareOrder SoftwareOrder { get; set; }
 }

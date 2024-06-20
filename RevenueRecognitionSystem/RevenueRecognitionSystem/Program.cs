@@ -1,3 +1,8 @@
+using RevenueRecognitionSystem.Context;
+using RevenueRecognitionSystem.DAL.Repositories;
+using RevenueRecognitionSystem.Model;
+using RevenueRecognitionSystem.Services;
+
 public class Program
 {
     
@@ -9,7 +14,17 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllers();
-   
+        builder.Services.AddScoped<IClientRepository, ClientRepository>();
+        builder.Services.AddScoped<IClientService, ClientService>();
+        builder.Services.AddScoped<ISoftwareOrderRepository, SoftwareOrderRepository>();
+        builder.Services.AddScoped<ISoftwareRepository, SoftwareRepository>();
+        builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
+        builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<IRevenueService, RevenueService>();
+        builder.Services.AddScoped<ISoftwareOrdeService, SoftwareOrderService>();
+        builder.Services.AddScoped<RevenueRecognitionContext>();
+        
         var app = builder.Build();
 
         //Configuring the HTTP request pipeline

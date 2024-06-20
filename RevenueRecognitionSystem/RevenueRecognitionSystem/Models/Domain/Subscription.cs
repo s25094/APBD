@@ -17,17 +17,5 @@ public class Subscription : SoftwareOrder
     [Required]
     public  int QuantityOfRenewalPeriod { get; set; }
     
-    
-    public void CalculateSubscription()
-    {
-        CalculatePrice();
-        Price /= QuantityOfRenewalPeriod;
-        if (RenewalPeriod.Equals('m'))
-        {
-            Price /= 12;
-        }
-
-        Price = System.Math.Round(Price, 2);
-    }
 
 }

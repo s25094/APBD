@@ -31,5 +31,5 @@ public class Software
     [Required]
     public int SubscritionPrice { get; set; }
     
-    //public virtual ICollection<UpfrontContract> UpfrontContracts { get; set; }
+    public virtual ICollection<SoftwareOrder> SoftwareOrders { get; set; }
 }

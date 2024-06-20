@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RevenueRecognitionSystem.Context;
 
@@ -11,9 +12,11 @@ using RevenueRecognitionSystem.Context;
 namespace RevenueRecognitionSystem.Migrations
 {
     [DbContext(typeof(RevenueRecognitionContext))]
-    partial class RevenueRecognitionContextModelSnapshot : ModelSnapshot
+    [Migration("20240619200122_InitialMigration27")]
+    partial class InitialMigration27
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -301,7 +304,7 @@ namespace RevenueRecognitionSystem.Migrations
                         .IsRequired();
 
                     b.HasOne("RevenueRecognitionSystem.Model.Software", "Software")
-                        .WithMany("SoftwareOrders")
+                        .WithMany()
                         .HasForeignKey("SoftwareId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -326,11 +329,6 @@ namespace RevenueRecognitionSystem.Migrations
             modelBuilder.Entity("RevenueRecognitionSystem.Model.Discount", b =>
                 {
                     b.Navigation("UpfrontContracts");
-                });
-
-            modelBuilder.Entity("RevenueRecognitionSystem.Model.Software", b =>
-                {
-                    b.Navigation("SoftwareOrders");
                 });
 
             modelBuilder.Entity("RevenueRecognitionSystem.Model.SoftwareOrder", b =>

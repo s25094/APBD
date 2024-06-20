@@ -3,223 +3,184 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RevenueRecognitionSystem.Context;
 using RevenueRecognitionSystem.Model;
+using RevenueRecognitionSystem.Services;
 
 namespace RevenueRecognitionSystem.Controller;
 
 
-[Route("api/")]
+[Route("api/revenue-system/")]
 [ApiController]
 public class RevenueRecognitionController : ControllerBase
 {
-    private RevenueRecognitionContext _dbContent = new RevenueRecognitionContext();
-    public RevenueRecognitionController(){}
+    private readonly IClientService _clientService;
+    private readonly ISoftwareOrdeService _softwareOrdeService;
+    private readonly IPaymentService _paymentService;
+    private IRevenueService _revenueService;
+    
+
+    public RevenueRecognitionController(IClientService clientService, ISoftwareOrdeService softwareOrdeService, 
+        IPaymentService paymentService, IRevenueService revenueService)
+    {
+        _clientService = clientService;
+        _softwareOrdeService = softwareOrdeService;
+        _paymentService = paymentService;
+        _revenueService = revenueService;
+    }
+    
+    
+    [HttpPost("/new-client/individual")]
+    public async Task<IActionResult> AddIndiviudalClient(IndividualRequest individualRequest)
+    {
+
+        try
+        {
+            return Ok(await _clientService.AddNewIndividualClientAsync(individualRequest, new CancellationToken()));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+        
+    }
+    
+    
+    [HttpPost("/new-client/company")]
+    public async Task<IActionResult> AddCompanylClient(CompanyRequest companyRequest)
+    {
+        try
+        {
+            return Ok(await _clientService.AddNewCompanyClientAsync(companyRequest, new CancellationToken()));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+    
+    
 
     
-    [HttpPost("/newpayment")]
-    public async Task<IActionResult> AddPayment(NewPayment payment)
+    [HttpPost("/delete-client/individual")]
+    public async Task<IActionResult> DeleteClient(int idClient)
     {
-        var contract =
-            await _dbContent.SoftwareOrders.FirstOrDefaultAsync(c => c.OrderId.Equals(payment.ContractID));
-
-        if (contract == null)
+        try
         {
-            return NotFound("Contract not found");
+            return Ok(await _clientService.DeleteIndividualClientAsync(idClient, new CancellationToken()));
         }
-
-        var price =  contract.Price;
-        
-        
-        var paid = _dbContent.Payments
-            .Where(p => p.SoftwareOrder.OrderId.Equals(payment.ContractID))
-            .Select(s => s.paymentAmount).Sum();
-        
-
-        if (price - paid < payment.Amount)
+        catch (ArgumentException exception)
         {
-            return NotFound("It's to much - aborted");
+            return BadRequest(exception.Message);
         }
-
-        var Upfront = await _dbContent.UpfrontContracts.FirstOrDefaultAsync(u => u.OrderId.Equals(payment.ContractID));
-        if (Upfront != null)
-        {
-            if (Upfront.EndDate < DateTime.Now)
-            {
-                return NotFound("Contract Expired");
-            }
-        }
-
-
-        var newPayment = new Payment
-        {
-            SoftwareOrder = contract,
-            paymentAmount = payment.Amount
-        };
-        
-        await _dbContent.Payments.AddAsync(newPayment);
-
-        if (payment.Amount + paid == price)
-        {
-            contract.isPaid = 1;
-            contract.Status = "Active";
-
-            if (Upfront != null)
-            {
-                Upfront.isSigned = 1;
-            }
-        }
-
-        await _dbContent.SaveChangesAsync();
-        
-        return Ok("Payment added");
     }
-
-
-    [HttpPost("/newcontract/subscription")]
-    public async Task<IActionResult> AddNewSubscription(NewSubscription newSubscription)
+    
+    [HttpPost("/update-client/individual")]
+    public async Task<IActionResult> UpdateIndividual(IndividualUpdateRequest individual)
     {
-        var subscriptionValidation = newSubscription.validateContract();
-        if (!subscriptionValidation.Equals("ok"))
+        try
         {
-            return NotFound(subscriptionValidation);
+            return Ok(await _clientService.UpdateIndividualClientAsync(individual, new CancellationToken()));
         }
-        var clientID = await _dbContent.Clients.FirstOrDefaultAsync(c => c.ClientId == newSubscription.IdClient);
-        var softwareID =  await _dbContent.Softwares.FirstOrDefaultAsync(s => s.SoftwareId == newSubscription.SoftwareId);
-        var subscription = new Subscription
+        catch (ArgumentException exception)
         {
-            Client = clientID, 
-            Software = softwareID,
-            Price = softwareID.FullPrice, 
-            Status = "New", 
-            isPaid = 0,
-            RenewalPeriod = newSubscription.RenewalPeriod,
-            QuantityOfRenewalPeriod = newSubscription.QuantityOfRenewalPeriod,
-            SubscriptionName = newSubscription.SubscriptionName
-        };
-        
-        
-        await _dbContent.Subscriptions.AddAsync(subscription);
-        subscription.CalculateSubscription();
-        await _dbContent.SaveChangesAsync();
-        return Ok(subscription.OrderId);
+            return BadRequest(exception.Message);
+        }
     }
-
-
+    
+    
+    [HttpPost("/update-client/company")]
+    public async Task<IActionResult> UpdateCompany(CompanyUpdateRequest company)
+    {
+        try
+        {
+            return Ok(await _clientService.UpdateCompanyClientAsync(company, new CancellationToken()));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+    
+    
     [HttpPost("/newcontract/upfront")]
-    public async Task<IActionResult> AddNewContract(NewContract contract)
+    public async Task<IActionResult> AddNewContract(ContractRequest contract)
     {
-        var contractValidation = contract.validateContract();
-        
-        if (!contractValidation.Equals("ok"))
+        try
         {
-            return NotFound(contractValidation);
+            return Ok(await _softwareOrdeService.CreateNewContractAsync(contract, new CancellationToken()));
         }
-
-        var clientID = await _dbContent.Clients.FirstOrDefaultAsync(c => c.ClientId == contract.IdClient);
-        var softwareID =  await _dbContent.Softwares.FirstOrDefaultAsync(s => s.SoftwareId == contract.SoftwareId);
-        var newContract = new UpfrontContract
+        catch (ArgumentException exception)
         {
-            Client = clientID, 
-            isSigned = 0, 
-            Software = softwareID,
-            Updates = contract.Updates, 
-            Price = softwareID.FullPrice, 
-            Status = "New", 
-            isPaid = 0, StartDate = contract.StartDate, EndDate = contract.EndDate
-        };
-        
-        Console.WriteLine(softwareID.FullPrice);
-        
-        await _dbContent.UpfrontContracts.AddAsync(newContract);
-        newContract.AddUpdates();
-        await _dbContent.SaveChangesAsync();
-        return Ok(newContract.OrderId);
-    }
-    
-    
-    
-    [HttpPost("/new/individual")]
-    public async Task<IActionResult> AddIndiviudal(Individual individual)
-    {
-        var newIndividual = new Individual
-        {
-            FirstName = individual.FirstName,
-            LastName = individual.LastName,
-            PESEL = individual.PESEL,
-            
-        };
-        newIndividual.setClient(individual.Email, individual.Phone, individual.Address);
-
-        await _dbContent.Individuals.AddAsync(newIndividual);
-        await _dbContent.SaveChangesAsync();
-        return Ok(newIndividual.PESEL);
-    }
-    
-    
-    [HttpPost("/new/company")]
-    public async Task<IActionResult> AddCompany(Company company)
-    {
-        var newCompany = new Company
-        {
-            CompanyName = company.CompanyName,
-            KRS = company.KRS,
-        };
-        newCompany.setClient(company.Email, company.Phone, company.Address);
-
-        await _dbContent.Companies.AddAsync(newCompany);
-        await _dbContent.SaveChangesAsync();
-        return Ok(newCompany.KRS);
-    }
-    
-    [HttpPost("/delete/individual")]
-    public async Task<IActionResult> DeleteIndividual(string pesel)
-    {
-        var individual = _dbContent.Individuals
-            .FirstOrDefaultAsync(i => i.PESEL.Equals(pesel))
-            .Result;
-        if (individual != null)
-        {
-            individual.FirstName = "";
-            individual.LastName = "";
-            individual.Address = "";
-            individual.setClient("", "", "");
+            return BadRequest(exception.Message);
         }
-
-        await _dbContent.SaveChangesAsync();
-        return Ok("record deleted");
     }
     
-    [HttpPost("/update/individual")]
-    public async Task<IActionResult> UpdateIndividual(Individual individual)
+    [HttpPost("/newcontract/subscription")]
+    public async Task<IActionResult> AddNewContract(SubscriptionRequest subscription)
     {
-        var updatedindividual = _dbContent.Individuals
-            .FirstOrDefaultAsync(i => i.PESEL.Equals(individual.PESEL))
-            .Result;
-        if (updatedindividual != null)
+        try
         {
-            updatedindividual.FirstName = individual.FirstName;
-            updatedindividual.LastName = individual.LastName;
-            updatedindividual.Address = individual.Address;
-            updatedindividual.setClient(individual.Email, individual.Phone, individual.Address);
+            return Ok(await _softwareOrdeService.CreateNewSubscriptionAsync(subscription, new CancellationToken()));
         }
-
-        await _dbContent.SaveChangesAsync();
-        return Ok(updatedindividual);
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
     
-    [HttpPost("/update/company")]
-    public async Task<IActionResult> UpdateCompany(Company company)
+    
+    
+   [HttpPost("/new-payment/contract")]
+    public async Task<IActionResult> AddContractPayment(PaymentRequest payment)
     {
-        var updatedCompany = _dbContent.Companies
-            .FirstOrDefaultAsync(i => i.KRS.Equals(company.KRS))
-            .Result;
-        if (updatedCompany != null)
+        try
         {
-            updatedCompany.CompanyName = company.CompanyName;
-            updatedCompany.setClient(company.Email, company.Phone, company.Address);
+            return Ok(await _paymentService.AddUpfrontPaymentAsync(payment, new CancellationToken()));
         }
-
-        await _dbContent.SaveChangesAsync();
-        return Ok(updatedCompany);
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
-
+    
+    [HttpPost("/new-payment/subscription")]
+    public async Task<IActionResult> AddSubscriptionPayment(PaymentRequest subscription)
+    {
+        try
+        {
+            return Ok(await _paymentService.AddSubscriptionPaymentAsync(subscription, new CancellationToken()));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+    
+    [HttpGet("/revenue/predicted")]
+    public async Task<IActionResult> CalculateRevenueForcompany()
+    {
+        try
+        {
+            return Ok( await _revenueService.CalculatePredictedRevenue(new CancellationToken()));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+    
+    [HttpGet("/revenue/current")]
+    public async Task<IActionResult> CalculateCurrentRevenueForcompany()
+    {
+        try
+        {
+            return Ok( await _revenueService.CalculateCurrentRevenue(new CancellationToken()));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+    
+    
+    
 }

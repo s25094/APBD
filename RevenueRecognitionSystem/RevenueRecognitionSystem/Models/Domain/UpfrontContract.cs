@@ -20,9 +20,5 @@ public class UpfrontContract : SoftwareOrder
     [MaxLength(100)]
     public DateTime EndDate {get; set; }
 
-    public void AddUpdates()
-    {
-        CalculatePrice();
-        Price *= Updates;
-    }
+  
 }
